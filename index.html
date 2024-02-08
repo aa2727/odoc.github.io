@@ -6,16 +6,16 @@
 <script type="text/javascript">
   // create an array with nodes
   var nodes = new vis.DataSet([
-    { id: 1, label: "Node 1" },
-    { id: 2, label: "Node 2" },
-    { id: 3, label: "Node 3", color: "#FF0000"},
-    { id: 4, label: "Node 4" },
-    { id: 5, label: "Node 5" }
+    { id: 1, label: "Node 1",level:1 },
+    { id: 2, label: "Node 2",level:1 },
+    { id: 3, label: "Node 3", color: "#FF0000",level:1},
+    { id: 4, label: "Node 4",level:1 },
+    { id: 5, label: "Node 5",level:1 }
   ]);
 
   // create an array with edges
   var edges = new vis.DataSet([
-    { from: 1, to: 3 },
+    { from: 1, to: 3},
     { from: 1, to: 2 },
     { from: 2, to: 4 },
     { from: 2, to: 5 },
@@ -48,7 +48,7 @@
     edges: edges2
   };
 
-  createNetwork(data,"network1");
+  createNetworkHierarchical(data,"network1");
 
   createNetwork(data2,"network2");
 
