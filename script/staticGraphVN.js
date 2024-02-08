@@ -19,7 +19,6 @@ function createNetwork(data_network,name,options = null) {
 
 function createNetworkHierarchical(data_network,name) {
   var options = {
-    height: "33%",
     layout: {
       hierarchical: {
         direction: "UD",
