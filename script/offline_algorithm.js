@@ -1,14 +1,45 @@
+function cost_time_travel(d) {
+    if (d >= 0) {
+        return 0;
+    }
+    return d*-1;
+}
+
+function find_t_future(graph,u,v,t){
+    for (let index = t; index < graph.length; index++) {
+        const static_graph = graph[index];
+        if (static_graph[u][v] != undefined) {
+            return index;
+        }
+    }
+    return null;
+}
+
+function v_exists(graph,u,v,t) {
+    return (graph[t][u][v] != undefined) ;
+}
+
+/**
+ * Check if there is some node in a dictionnary of dictionnary of node
+ * @param unvisited 
+ * @returns true if there is still node to explore, false otherwise
+ */
 function still_unvisited_node(unvisited) {
     for (let index = 0; index < Object.keys(unvisited).length; index++) {
         if (Object.keys(unvisited[index]).length != 0) { // vérifier plutot la longueur
-            console.log("Pas vide :");
-            console.log(unvisited[index]);
             return true;
         }
     }
     return false;
 }
 
+/**
+ *  Find the argmin and the min nodeCost in the graph
+ * @param unvisited 
+ * @param nodeCost 
+ * @returns the minimum and a tuple with time and the node argmin, 
+ * if there is no min, return Infinity,[0,0]
+ */
 function argmin_unvisited_node(unvisited,nodeCost) {
     let min = Infinity;
     let argmin = [0,0];
@@ -24,6 +55,11 @@ function argmin_unvisited_node(unvisited,nodeCost) {
     return [min,argmin];
 }
 
+/**
+ * Count the number of nodes not visited in every time
+ * @param unvisited 
+ * @returns number of non visited nodes
+ */
 function nb_node_left(unvisited) {
     let cpt = 0;
     for (let index = 0; index < Object.keys(unvisited).length; index++) {
@@ -34,13 +70,16 @@ function nb_node_left(unvisited) {
     return cpt;
 }
 
-function offline_costc_odoc(src,graph) {
+function offline_costc_odoc(src,dest,graph,C) {
     const nodeCost = {};
     const minCost = {};
     const visited = {};
     const pred = {};
     const unvisited = {};
     
+    /**
+     * Initialisation of the tables of cost and time
+     */
     for (let index = 0; index < graph.length; index++) {
         const static_graph = graph[index];
         let nodeCost_tmp = {};
@@ -67,19 +106,42 @@ function offline_costc_odoc(src,graph) {
     console.log("unvisited :");
     console.log(unvisited);
 
-    let cpt = 0;
+    /**
+     * Beginning of the main "boucle" of the function 
+     */
     while (still_unvisited_node(unvisited)) {
-        let res = argmin_unvisited_node(unvisited,nodeCost);
-        console.log("Noeuds restants");
-        console.log(nb_node_left(unvisited));
-        cpt++;
+        let res = argmin_unvisited_node(unvisited,nodeCost);// Ligne argmin
+        let c = res[0];
         delete unvisited[res[1][0]][res[1][1]];
-        if (cpt > 100) {
-            console.log("timeout");
-            break;
+        let u = res[1][1];
+        // Pour chaque noeud ?
+        for (let v in graph[0]) {
+            if (v != u) {
+                let t_future = find_t_future(graph,u,v,res[1][0]);
+                if (t_future != null) {
+                    let cmin,tmin = minCost[v];
+                    if ((nodeCost[t_future][v] > c) && ((c<cmin) || (t_future < tmin))) {
+                        nodeCost[t_future][v] = c;
+                        pred[t_future][v] = ((u,res[1][0]),(u,t_future),(v,t_future))
+                        if ((c < minCost[v][0]) || (c == minCost[v][0] && t_future < minCost[v][1])) minCost[v] = (c,t_future);
+                    }
+                }
+                for (let index = res[1][0]-1; index >= 0; index--) {
+                    if (v_exists(graph,u,v,index)) {
+                        let cpast = c + cost_time_travel(res[1][0]-index);
+                        if (cpast <= C && nodeCost[index][v] > cpast) {
+                            nodeCost[index][v] = cpast;
+                            pred[index][v] = ((u,res[1][0]),(u,index),(v,index))
+                        }
+                    }
+                    
+                }
+                
+            }
         }
     }
-    
+    console.log("Fiiiin");
+    console.log(pred);
 }
 
 // Généré par chatgpt
