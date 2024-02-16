@@ -114,6 +114,7 @@ function offline_costc_odoc(src,dest,graph,C) {
         let c = res[0];
         delete unvisited[res[1][0]][res[1][1]];
         let u = res[1][1];
+        let t = res[1][0];
         // Pour chaque noeud ?
         for (let v in graph[0]) {
             if (v != u) {

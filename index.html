@@ -7,6 +7,7 @@
 
 <script type="text/javascript">
   createNetworkHierarchical(data,"network1");
-  createNetwork(data2,"network2");
+  createNetworkHierarchical(from_dgraph_to_datanetwork(dynamic_graph),"network2");
   offline_costc_odoc('A','B',dynamic_graph,20);
+  from_dgraph_to_datanetwork(dynamic_graph);
 </script>
