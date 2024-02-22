@@ -43,7 +43,6 @@ function createNetworkHierarchical(data_network,name) {
  * @returns data_object
  */
 function from_dgraph_to_datanetwork(dynamic_graph) {
-  console.log("Trace from_dgraph_to_datanetwork");
   let nodes = new vis.DataSet([]);
   let edges = new vis.DataSet([]);
   for (let index = 0; index < dynamic_graph.length; index++) {

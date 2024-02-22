@@ -9,6 +9,7 @@ function find_t_future(graph,u,v,t){
     for (let index = t; index < graph.length; index++) {
         const static_graph = graph[index];
         if (static_graph[u][v] != undefined) {
+            console.log("Arc au temps : " + index);
             return index;
         }
     }
@@ -94,9 +95,11 @@ function offline_costc_odoc(src,dest,graph,C) {
         unvisited[index] = unvisited_tmp;
         pred[index] = pred_tmp;
     }
-    for (let node in graph[0]) {
-        minCost[node] = [Infinity,Infinity];
-    }
+    Object.keys(graph[0]).forEach(node => {
+        minCost[node] = [];
+        minCost[node].push(Infinity);
+        minCost[node].push(Infinity);
+    });
     nodeCost[0][src] = 0;
 
     console.log("NodeCost :");
@@ -120,11 +123,11 @@ function offline_costc_odoc(src,dest,graph,C) {
             if (v != u) {
                 let t_future = find_t_future(graph,u,v,res[1][0]);
                 if (t_future != null) {
-                    let cmin,tmin = minCost[v];
+                    const [cmin,tmin] = minCost[v];
                     if ((nodeCost[t_future][v] > c) && ((c<cmin) || (t_future < tmin))) {
                         nodeCost[t_future][v] = c;
-                        pred[t_future][v] = ((u,res[1][0]),(u,t_future),(v,t_future))
-                        if ((c < minCost[v][0]) || (c == minCost[v][0] && t_future < minCost[v][1])) minCost[v] = (c,t_future);
+                        pred[t_future][v] = [[u,res[1][0]],[u,t_future],[v,t_future]];
+                        if ((c < minCost[v][0]) || (c == minCost[v][0] && t_future < minCost[v][1])) minCost[v] = [c,t_future];
                     }
                 }
                 for (let index = res[1][0]-1; index >= 0; index--) {
@@ -141,11 +144,45 @@ function offline_costc_odoc(src,dest,graph,C) {
             }
         }
     }
-    console.log("Fiiiin");
+    console.log("Pred : ");
     console.log(pred);
+    console.log(minCost);
+    console.log("NodeCost");
+    console.log(nodeCost);
 }
 
 // Généré par chatgpt
+
+
+function findTminConstraint(dst, nodeCost, f, C) {
+    let tmin = Infinity;
+
+    // Iterate over all time instants
+    for (let t = 0; t < nodeCost.length; t++) {
+        let constraintMet = false;
+
+        // Check if the constraint is met for the current time instant
+        for (let i = 0; i < f.length; i++) {
+            if (nodeCost[dst][t] + f[i] <= C) {
+                constraintMet = true;
+                break;
+            }
+        }
+
+        // If the constraint is met, update tmin
+        if (constraintMet && t < tmin) {
+            tmin = t;
+        }
+    }
+
+    // If no feasible time instant found, return undefined
+    if (tmin === Infinity) {
+        return undefined;
+    } else {
+        return tmin;
+    }
+}
+
 function dijkstra(graph, startNode) {
     const distances = {};
     const visited = {};
@@ -192,7 +229,7 @@ const graph = {
 };
 
 const dynamic_graph = [{
-    A: { B: 5, C: 3 },
+    A: {},
     B: { D: 9 },
     C: { D: 2 },
     D: {}
