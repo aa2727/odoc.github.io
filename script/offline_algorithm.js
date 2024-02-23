@@ -1,15 +1,14 @@
 function cost_time_travel(d) {
-    if (d >= 0) {
+    if (d <= 0) {
         return 0;
     }
-    return d*-1;
+    return d;
 }
 
 function find_t_future(graph,u,v,t){
     for (let index = t; index < graph.length; index++) {
         const static_graph = graph[index];
         if (static_graph[u][v] != undefined) {
-            console.log("Arc au temps : " + index);
             return index;
         }
     }
@@ -71,10 +70,34 @@ function nb_node_left(unvisited) {
     return cpt;
 }
 
+/**
+ * Find the minimum tmin where it exists a t where nodeCost[dst,t] + f(t-tmin) =< C;
+ * @param {*} dst destination node
+ * @param {*} nodeCost object containing the best cost from the node src at a time
+ * @param {*} C The maximum Cost for the travel
+ * @returns 
+ */
+function findTminConstraint(dst, nodeCost,C) {
+    // Loop of the tmin
+    for (let t = 0; t < Object.keys(nodeCost).length; t++) {
+        // Check if the current t time can arrive at i time without exceding the cost C
+        for (let i = 0; i < Object.keys(nodeCost).length; i++) {
+            if (nodeCost[i][dst] + cost_time_travel(i-t) <= C) {
+                constraintMet = true;
+                return t;
+            }
+        }
+    }
+    return null;
+}
+
+function extractTimeTravel(dst,tmin,nodeCost,pred) {
+    
+}
+
 function offline_costc_odoc(src,dest,graph,C) {
     const nodeCost = {};
     const minCost = {};
-    const visited = {};
     const pred = {};
     const unvisited = {};
     
@@ -115,6 +138,9 @@ function offline_costc_odoc(src,dest,graph,C) {
     while (still_unvisited_node(unvisited)) {
         let res = argmin_unvisited_node(unvisited,nodeCost);// Ligne argmin
         let c = res[0];
+        if (c == Infinity) {
+            break;
+        }
         delete unvisited[res[1][0]][res[1][1]];
         let u = res[1][1];
         let t = res[1][0];
@@ -133,9 +159,11 @@ function offline_costc_odoc(src,dest,graph,C) {
                 for (let index = res[1][0]-1; index >= 0; index--) {
                     if (v_exists(graph,u,v,index)) {
                         let cpast = c + cost_time_travel(res[1][0]-index);
+                        console.log("Mis à jour node cost ",v,cpast);
                         if (cpast <= C && nodeCost[index][v] > cpast) {
+                            
                             nodeCost[index][v] = cpast;
-                            pred[index][v] = ((u,res[1][0]),(u,index),(v,index))
+                            pred[index][v] = [[u,res[1][0]],[u,index],[v,index]];
                         }
                     }
                     
@@ -148,40 +176,15 @@ function offline_costc_odoc(src,dest,graph,C) {
     console.log(pred);
     console.log(minCost);
     console.log("NodeCost");
-    console.log(nodeCost);
+    console.log(nodeCost[0]['D']);
+
+    let tmin = findTminConstraint(dest,nodeCost,C);
+    console.log(tmin);
+    if (tmin == null) return null;
+    return extractTimeTravel(dest,tmin,nodeCost,pred);
 }
 
 // Généré par chatgpt
-
-
-function findTminConstraint(dst, nodeCost, f, C) {
-    let tmin = Infinity;
-
-    // Iterate over all time instants
-    for (let t = 0; t < nodeCost.length; t++) {
-        let constraintMet = false;
-
-        // Check if the constraint is met for the current time instant
-        for (let i = 0; i < f.length; i++) {
-            if (nodeCost[dst][t] + f[i] <= C) {
-                constraintMet = true;
-                break;
-            }
-        }
-
-        // If the constraint is met, update tmin
-        if (constraintMet && t < tmin) {
-            tmin = t;
-        }
-    }
-
-    // If no feasible time instant found, return undefined
-    if (tmin === Infinity) {
-        return undefined;
-    } else {
-        return tmin;
-    }
-}
 
 function dijkstra(graph, startNode) {
     const distances = {};
