@@ -5,6 +5,14 @@ function cost_time_travel(d) {
     return d;
 }
 
+/**
+ *  Find the first time where the edge u,v exists
+ * @param {*} graph  dynamic graph ORIENTED
+ * @param {*} u node
+ * @param {*} v node
+ * @param {*} t time
+ * @returns the first time where the edge u,v exists, null otherwise
+ */
 function find_t_future(graph,u,v,t){
     for (let index = t; index < graph.length; index++) {
         const static_graph = graph[index];
@@ -91,8 +99,30 @@ function findTminConstraint(dst, nodeCost,C) {
     return null;
 }
 
-function extractTimeTravel(dst,tmin,nodeCost,pred) {
-    
+/**
+ * Extract the path from the pred table
+ * @param {*} dst  destination node
+ * @param {*} src  source node
+ * @param {*} tmin  time where the cost is minimal
+ * @param {*} nodeCost object containing the best cost from the node src at a time
+ * @param {*} pred  table of predecessor
+ * @returns     the path from src to dst at time tmin
+ */
+function extractTimeTravelRec(dst,src,tmin,nodeCost,pred) {
+    if (dst == src) {
+        return [[src,tmin]];
+    }
+    console.log("pred, dst, tmin : ",pred[tmin][dst],dst,tmin);
+    return extractTimeTravelRec(pred[tmin][dst][0][0],src,pred[tmin][dst][0][1],nodeCost,pred).concat(pred[tmin][dst]);
+}
+
+function printTimeTravel(path) {
+    let str = "";
+    for (let index = 0; index < path.length; index++) {
+        const element = path[index];
+        str += element[0] + " at time " + element[1] + " -> ";
+    }   
+    return str;
 }
 
 function offline_costc_odoc(src,dest,graph,C) {
@@ -133,7 +163,7 @@ function offline_costc_odoc(src,dest,graph,C) {
     console.log(unvisited);
 
     /**
-     * Beginning of the main "boucle" of the function 
+     * Beginning of the main loop of the function 
      */
     while (still_unvisited_node(unvisited)) {
         let res = argmin_unvisited_node(unvisited,nodeCost);// Ligne argmin
@@ -144,7 +174,7 @@ function offline_costc_odoc(src,dest,graph,C) {
         delete unvisited[res[1][0]][res[1][1]];
         let u = res[1][1];
         let t = res[1][0];
-        // Pour chaque noeud ?
+        // Pour chaque noeud v adjacent à u
         for (let v in graph[0]) {
             if (v != u) {
                 let t_future = find_t_future(graph,u,v,res[1][0]);
@@ -159,7 +189,6 @@ function offline_costc_odoc(src,dest,graph,C) {
                 for (let index = res[1][0]-1; index >= 0; index--) {
                     if (v_exists(graph,u,v,index)) {
                         let cpast = c + cost_time_travel(res[1][0]-index);
-                        console.log("Mis à jour node cost ",v,cpast);
                         if (cpast <= C && nodeCost[index][v] > cpast) {
                             
                             nodeCost[index][v] = cpast;
@@ -172,16 +201,9 @@ function offline_costc_odoc(src,dest,graph,C) {
             }
         }
     }
-    console.log("Pred : ");
-    console.log(pred);
-    console.log(minCost);
-    console.log("NodeCost");
-    console.log(nodeCost[0]['D']);
-
     let tmin = findTminConstraint(dest,nodeCost,C);
-    console.log(tmin);
     if (tmin == null) return null;
-    return extractTimeTravel(dest,tmin,nodeCost,pred);
+    return extractTimeTravelRec(dest,src,tmin,nodeCost,pred);
 }
 
 // Généré par chatgpt
@@ -230,20 +252,52 @@ const graph = {
     C: { D: 2 },
     D: {}
 };
-
+// Voir pour différents format genre : a { b : [0,1]} avec temps où aretes existent
 const dynamic_graph = [{
-    A: {},
+    A: { },
     B: { D: 9 },
     C: { D: 2 },
+    D: { B: 9, C: 9}
+},
+{
+    A: {  
+        C: 3 
+    },
+    B: { C: 9 },
+    C: { A: 2, B: 9 },
     D: {}
 },
 {
     A: { B: 5, C: 3 },
-    B: { D: 9 },
-    C: { D: 2 },
-    D: {}
+    B: { D: 9,  A: 5},
+    C: { D: 2, A: 2},
+    D: { B: 9, C: 9}
 }
 ];
+
+
+const dynamic_graph_oriented = [{
+    A: { C: 2 },
+    B: { D: 9 },
+    C: { D: 2 },
+    D: { B: 9, C: 9}
+},
+{
+    A: {  
+        C: 3 
+    },
+    B: { C: 9 },
+    C: { A: 2, B: 9 },
+    D: {}
+},
+{
+    A: { B: 5, C: 3 },
+    B: { D: 9,  A: 5},
+    C: { D: 2, A: 2},
+    D: { B: 9, C: 9}
+}
+];
+
 
 const startNode = 'A';
 //const shortestDistances = dijkstra(graph, startNode);
