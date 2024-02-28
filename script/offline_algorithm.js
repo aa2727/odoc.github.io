@@ -16,7 +16,7 @@ function cost_time_travel(d) {
 function find_t_future(graph,u,v,t){
     for (let index = t; index < graph.length; index++) {
         const static_graph = graph[index];
-        if (static_graph[u][v] != undefined) {
+        if (static_graph[u][v] != undefined || static_graph[v][u] != undefined) {
             return index;
         }
     }
@@ -187,7 +187,7 @@ function offline_costc_odoc(src,dest,graph,C) {
                     }
                 }
                 for (let index = res[1][0]-1; index >= 0; index--) {
-                    if (v_exists(graph,u,v,index)) {
+                    if (v_exists(graph,u,v,index)|| v_exists(graph,v,u,index)){
                         let cpast = c + cost_time_travel(res[1][0]-index);
                         if (cpast <= C && nodeCost[index][v] > cpast) {
                             
@@ -201,77 +201,53 @@ function offline_costc_odoc(src,dest,graph,C) {
             }
         }
     }
+    console.log("pred :",pred);
     let tmin = findTminConstraint(dest,nodeCost,C);
     if (tmin == null) return null;
     return extractTimeTravelRec(dest,src,tmin,nodeCost,pred);
 }
 
-// Généré par chatgpt
-
-function dijkstra(graph, startNode) {
-    const distances = {};
-    const visited = {};
-    const unvisited = {};
-
-    for (let node in graph) {
-        distances[node] = Infinity;
-        unvisited[node] = graph[node];
-    }
-
-    distances[startNode] = 0;
-
-    while (Object.keys(unvisited).length !== 0) {
-        let currentNode = null;
-
-        for (let node in unvisited) {
-            if (currentNode === null || distances[node] < distances[currentNode]) {
-                currentNode = node;
-            }
-        }
-
-        let neighbors = unvisited[currentNode];
-
-        for (let neighbor in neighbors) {
-            let distance = distances[currentNode] + neighbors[neighbor];
-            if (distance < distances[neighbor]) {
-                distances[neighbor] = distance;
-            }
-        }
-
-        visited[currentNode] = distances[currentNode];
-        delete unvisited[currentNode];
-    }
-
-    return distances;
-}
-
-// Example usage
-const graph = {
-    A: { B: 5, C: 3 },
-    B: { D: 9 },
-    C: { D: 2 },
-    D: {}
-};
 // Voir pour différents format genre : a { b : [0,1]} avec temps où aretes existent
 const dynamic_graph = [{
     A: { },
-    B: { D: 9 },
-    C: { D: 2 },
+    B: { D: 9},
+    C: {D: 3},
     D: { B: 9, C: 9}
 },
 {
-    A: {  
-        C: 3 
+    A: { C: 3   
     },
-    B: { C: 9 },
-    C: { A: 2, B: 9 },
+    B: { },
+    C: { A: 2},
     D: {}
 },
 {
     A: { B: 5, C: 3 },
     B: { D: 9,  A: 5},
     C: { D: 2, A: 2},
+    D: { C:1, B: 9}
+}
+];
+
+
+const dynamic_graph_test2 = [{
+    A: { },
+    B: {},
+    C: { },
     D: { B: 9, C: 9}
+},
+{
+    A: {   
+    },
+    B: { },
+    C: { A: 2 },
+    D: {}
+},
+{
+    A: { B: 5, C: 3 },
+    B: { D: 9},
+    C: { D: 2},
+    D: {}
 }
 ];
 
