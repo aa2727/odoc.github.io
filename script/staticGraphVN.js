@@ -62,3 +62,15 @@ function from_dgraph_to_datanetwork(dynamic_graph) {
     edges: edges
   };
 }
+/**
+ *  Color the travel of a user in a dynamic graph
+ * example of input : [["A",0],["A",0],["A",1],["C",1],["C",1],["C",0],["D",0],["D",0],["D",0],["B",0]]
+ * @param {*} travel  list of link dictionnary
+ */
+function color_travel(travel,network) {
+  for (let index = 0; index < travel.length-1; index++) {
+    let change = travel[index];
+    console.log("Nodea = ",change);
+    network['nodes'].updateOnly({id: change[0]+change[1], color: 'red'});
+  }
+}

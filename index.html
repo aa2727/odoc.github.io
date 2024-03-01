@@ -24,9 +24,13 @@
 <script type="text/javascript" src="script/offline_algorithm.js"></script>
 <script type="text/javascript" src="script/interface.js"></script>
 <script type="text/javascript">
-  createNetworkHierarchical(from_dgraph_to_datanetwork(dynamic_graph_test2),"network2");
+  let network = from_dgraph_to_datanetwork(dynamic_graph_test2)
+  createNetworkHierarchical(network,"network2");
   createNetworkHierarchical(data,"network1");
-  console.log(printTimeTravel(offline_costc_odoc('A','B',dynamic_graph_test2,1)));
+  console.log(offline_costc_odoc('A','B',dynamic_graph_test2,1));
+  let travel = offline_costc_odoc('A','B',dynamic_graph_test2,1);
+  console.log(JSON.stringify(travel));
+  color_travel(travel, network);
 </script>
 </body>
 </html>
