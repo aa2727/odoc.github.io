@@ -92,7 +92,7 @@ function findTminConstraint(dst, nodeCost,C) {
         for (let i = 0; i < Object.keys(nodeCost).length; i++) {
             if (nodeCost[i][dst] + cost_time_travel(i-t) <= C) {
                 constraintMet = true;
-                return t;
+                return [t,i];
             }
         }
     }
@@ -202,8 +202,12 @@ function offline_costc_odoc(src,dest,graph,C) {
         }
     }
     console.log("pred :",pred);
-    let tmin = findTminConstraint(dest,nodeCost,C);
+    const [tmin,t] = findTminConstraint(dest,nodeCost,C);
     if (tmin == null) return null;
+    if (pred[tmin][dest] == null)
+    {
+        return extractTimeTravelRec(dest,src,t,nodeCost,pred).concat([[dest,tmin]]);
+    }
     return extractTimeTravelRec(dest,src,tmin,nodeCost,pred);
 }
 
@@ -234,7 +238,7 @@ const dynamic_graph_test2 = [{
     A: { },
     B: {},
     C: { },
-    D: { B: 9, C: 9}
+    D: { B: 9}
 },
 {
     A: {   
