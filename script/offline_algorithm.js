@@ -176,6 +176,7 @@ async function offline_costc_odoc(src,dest,graph,C) {
     while (still_unvisited_node(unvisited)) {
         await resolveAfter2Seconds();
         await nextTick();
+        update_nodeCost_tab_view(nodeCost);
         let res = argmin_unvisited_node(unvisited,nodeCost);// Ligne argmin
         let c = res[0];
         if (c == Infinity) {
@@ -289,7 +290,14 @@ const dynamic_graph_oriented = [{
 }
 ];
 
-
-const startNode = 'A';
-//const shortestDistances = dijkstra(graph, startNode);
-//console.log(shortestDistances);
+function update_nodeCost_tab_view(nodeCost) {
+    for (let index = 0; index < Object.keys(nodeCost).length; index++) {
+        const element = nodeCost[index];
+        console.log("element : ",element);
+        for (let node in element) {
+            let nodeCostVal = element[node];
+            let tabVal = document.getElementById(node+index+"cost");
+            tabVal.innerHTML = nodeCostVal;
+        }
+    }
+}
