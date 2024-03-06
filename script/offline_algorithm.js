@@ -125,7 +125,15 @@ function printTimeTravel(path) {
     return str;
 }
 
-function offline_costc_odoc(src,dest,graph,C) {
+function resolveAfter2Seconds() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve('resolved');
+      }, 2000);
+    });
+  }
+
+async function offline_costc_odoc(src,dest,graph,C) {
     const nodeCost = {};
     const minCost = {};
     const pred = {};
@@ -166,6 +174,8 @@ function offline_costc_odoc(src,dest,graph,C) {
      * Beginning of the main loop of the function 
      */
     while (still_unvisited_node(unvisited)) {
+        await resolveAfter2Seconds();
+        await nextTick();
         let res = argmin_unvisited_node(unvisited,nodeCost);// Ligne argmin
         let c = res[0];
         if (c == Infinity) {
@@ -200,6 +210,7 @@ function offline_costc_odoc(src,dest,graph,C) {
                 
             }
         }
+        console.log("NodeCost :",JSON.parse(JSON.stringify(nodeCost)));
     }
     console.log("pred :",pred);
     const [tmin,t] = findTminConstraint(dest,nodeCost,C);

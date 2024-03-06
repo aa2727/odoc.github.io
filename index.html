@@ -16,6 +16,9 @@
     <input type="text" id="startTime" name="startTime"><br><br>
   </form>
   <button onclick="run_odoc()">Compute CostCostrained</button>
+  <button onclick="" id="play">Play</button>
+  <button onclick="" id="pause">Pause</button>
+  <div id="tick_number">0</div>   
   <div id="mynetwork"></div>
 
 <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
@@ -26,10 +29,10 @@
 <script type="text/javascript">
   var network = from_dgraph_to_datanetwork(dynamic_graph_test2)
   createNetworkHierarchical(network,"network2");
-  createNetworkHierarchical(data,"network1");
   console.log(offline_costc_odoc('A','B',dynamic_graph_test2,1));
   let travel = offline_costc_odoc('A','B',dynamic_graph_test2,1);
   console.log(JSON.stringify(travel));
+  incr_tick_number();
 </script>
 </body>
 </html>

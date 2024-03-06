@@ -67,7 +67,7 @@ function from_dgraph_to_datanetwork(dynamic_graph) {
  * example of input : [["A",0],["A",0],["A",1],["C",1],["C",1],["C",0],["D",0],["D",0],["D",0],["B",0]]
  * @param {*} travel  list of link dictionnary
  */
-function color_travel(travel,network) {
+ async function color_travel(travel,network) {
   for (let index = 0; index < travel.length-1; index++) {
     let change = travel[index];
     let next = travel[index+1];
@@ -84,6 +84,10 @@ function color_travel(travel,network) {
   network['nodes'].updateOnly({id: travel[travel.length-1][0]+travel[travel.length-1][1], color: 'red'});
 }
 
+/**
+ *  initialize the color of the graph to the default color
+ * @param {*} network
+ */
 function init_color_graph(network) {
   console.log(network['nodes'].getIds()[0]);
   for (let i = 0; i < network['nodes'].getIds().length; i++) {
