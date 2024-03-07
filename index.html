@@ -1,95 +1,102 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
+  <link rel="stylesheet" href="style/style.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visualisation ODOC</title>
 </head>
 <body>
-  <form id="info" action="">
-    <label for="start">Start:</label>
-    <input type="text" id="start" name="start"><br><br>
-    <label for="end">End:</label>
-    <input type="text" id="end" name="end"><br><br>
-    <label for="time">Cost Max:</label>
-    <input type="text" id="cost" name="cost"><br><br>
-    <label for="time">Time:</label>
-    <input type="text" id="startTime" name="startTime"><br><br>
-  </form>
-  <button onclick="run_odoc()">Compute CostCostrained</button>
-  <button onclick="" id="play">Play</button>
-  <button onclick="" id="pause">Pause</button>
-  <div id="mynetwork"></div>
+  <section id="dashboard">
+    <form id="info">
+      <label>Start:</label>
+      <input type="text" id="start" name="start"><br><br>
+      <label>End:</label>
+      <input type="text" id="end" name="end"><br><br>
+      <label>Cost Max:</label>
+      <input type="text" id="cost" name="cost"><br><br>
+      <label>Time:</label>
+      <input type="text" id="startTime" name="startTime"><br><br>
+    </form>
+    <button onclick="run_odoc()">Compute CostCostrained</button>
+    <button onclick="" id="play">Play</button>
+    <button onclick="" id="pause">Pause</button>
+    <div id="mynetwork"></div>
+  
+    <div id="tableau_nodeCost">
+      
+      <table id="nodeCost">
+        <tr>
+          <th>Node</th>
+          <th>Time</th>
+          <th>Cost</th>
+        </tr>
+        <tr id="A0">
+          <td>A</td>
+          <td>0</td>
+          <td id="A0cost">0</td>
+        </tr>
+        <tr id="B0">
+          <td>B</td>
+          <td>0</td>
+          <td id="B0cost">0</td>
+        </tr>
+        <tr id="C0">
+          <td>C</td>
+          <td>0</td>
+          <td id="C0cost">0</td>
+        </tr>
+        <tr id="D0">
+          <td>D</td>
+          <td>0</td>
+          <td id="D0cost">0</td>
+        </tr>
+        <tr id="A1">
+          <td>A</td>
+          <td>1</td>
+          <td id="A1cost">0</td>
+        </tr>
+        <tr id="B1">
+          <td>B</td>
+          <td>1</td>
+          <td id="B1cost">0</td>
+        </tr>
+        <tr id="C1">
+          <td>C</td>
+          <td>1</td>
+          <td id="C1cost">0</td>
+        </tr>
+        <tr id="D1">
+          <td>D</td>
+          <td>1</td>
+          <td id="D1cost">0</td>
+        </tr>
+        <tr id="A2">
+          <td>A</td>
+          <td>2</td>
+          <td id="A2cost">0</td>
+        </tr>
+        <tr id="B2">
+          <td>B</td>
+          <td>2</td>
+          <td id="B2cost">0</td>
+        </tr>
+        <tr id="C2">
+          <td>C</td>
+          <td>2</td>
+          <td id="C2cost">0</td>
+        </tr>
+        <tr id="D2">
+          <td>D</td>
+          <td>2</td>
+          <td id="D2cost">0</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+  <section id="network_viz">
 
-  <div id="tableau_nodeCost">
-    
-    <table id="nodeCost">
-      <tr>
-        <th>Node</th>
-        <th>Time</th>
-        <th>Cost</th>
-      </tr>
-      <tr id="A0">
-        <td>A</td>
-        <td>0</td>
-        <td id="A0cost">0</td>
-      </tr>
-      <tr id="B0">
-        <td>B</td>
-        <td>0</td>
-        <td id="B0cost">0</td>
-      </tr>
-      <tr id="C0">
-        <td>C</td>
-        <td>0</td>
-        <td id="C0cost">0</td>
-      </tr>
-      <tr id="D0">
-        <td>D</td>
-        <td>0</td>
-        <td id="D0cost">0</td>
-      </tr>
-      <tr id="A1">
-        <td>A</td>
-        <td>1</td>
-        <td id="A1cost">0</td>
-      </tr>
-      <tr id="B1">
-        <td>B</td>
-        <td>1</td>
-        <td id="B1cost">0</td>
-      </tr>
-      <tr id="C1">
-        <td>C</td>
-        <td>1</td>
-        <td id="C1cost">0</td>
-      </tr>
-      <tr id="D1">
-        <td>D</td>
-        <td>1</td>
-        <td id="D1cost">0</td>
-      </tr>
-      <tr id="A2">
-        <td>A</td>
-        <td>2</td>
-        <td id="A2cost">0</td>
-      </tr>
-      <tr id="B2">
-        <td>B</td>
-        <td>2</td>
-        <td id="B2cost">0</td>
-      </tr>
-      <tr id="C2">
-        <td>C</td>
-        <td>2</td>
-        <td id="C2cost">0</td>
-      </tr>
-      <tr id="D2">
-        <td>D</td>
-        <td>2</td>
-        <td id="D2cost">0</td>
-      </tr>
-    </table>
-  </div>
+  </section>
 
 <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <script type="text/javascript" src="script/staticGraphVN.js"></script>
@@ -99,10 +106,6 @@
 <script type="text/javascript">
   var network = from_dgraph_to_datanetwork(dynamic_graph_test2)
   createNetworkHierarchical(network,"network2");
-  console.log(offline_costc_odoc('A','B',dynamic_graph_test2,1));
-  let travel = offline_costc_odoc('A','B',dynamic_graph_test2,1);
-  console.log(JSON.stringify(travel));
-  incr_tick_number();
 </script>
 </body>
 </html>

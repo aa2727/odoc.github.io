@@ -1,19 +1,15 @@
-let temps = 0; 
-
 function createNetwork(data_network,name,options = null) {
     var container = document.createElement(name);
-    //let title = document.createElement("h2");
-    //title.innerText = "Topologie au temps t"+ temps++;
-    //container.appendChild(title);
     if (options == null) {
       var options = {
-        height: "33%"
+        
       };
     }
 
     var netw_container = document.createElement("network");
     container.appendChild(netw_container);
-    document.body.appendChild(container);
+    let section = document.getElementById("network_viz");
+    section.appendChild(container);
     var network = new vis.Network(netw_container, data_network, options);
 }
 
@@ -53,7 +49,7 @@ function from_dgraph_to_datanetwork(dynamic_graph) {
         edges.add({id : node+index+v+index,from: node+index,to : v+index,color: { color: "blue" }})
       }
       for (let j = 0; j < index; j++) {
-        edges.add({id : node+index+node+j, from: node+index,to : node+j,color: { color: "white" }})
+        edges.add({id : node+index+node+j, from: node+index,to : node+j,color: { color: "#f2f2f2" }})
       }
     }
   }
@@ -99,7 +95,7 @@ function init_color_graph(network) {
     let edge = network['edges'].getIds()[i];
     //if there is the same letter twice in the id of the edge
     if (edge[0] == edge[2]) {
-      network['edges'].updateOnly({id: edge, color: 'white'});
+      network['edges'].updateOnly({id: edge, color: '#f2f2f2'});
     }
     else
     {
