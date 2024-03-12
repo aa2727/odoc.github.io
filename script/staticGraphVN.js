@@ -103,3 +103,10 @@ function init_color_graph(network) {
     }
   }
 }
+
+/**
+ * Color the actual node in red
+ */
+function color_actual_node(node,network) {
+  network['nodes'].updateOnly({id: node, color: 'red'});
+}

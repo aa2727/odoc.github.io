@@ -163,12 +163,7 @@ async function offline_costc_odoc(src,dest,graph,C) {
     });
     nodeCost[0][src] = 0;
 
-    console.log("NodeCost :");
-    console.log(nodeCost);
-    console.log("MinCost :");
-    console.log(minCost);
-    console.log("unvisited :");
-    console.log(unvisited);
+    create_nodeCost_tab(nodeCost);
 
     /**
      * Beginning of the main loop of the function 
@@ -185,6 +180,7 @@ async function offline_costc_odoc(src,dest,graph,C) {
         delete unvisited[res[1][0]][res[1][1]];
         let u = res[1][1];
         let t = res[1][0];
+        update_actual_node(u,t);
         // Pour chaque noeud v adjacent à u
         for (let v in graph[0]) {
             if (v != u) {
@@ -300,4 +296,51 @@ function update_nodeCost_tab_view(nodeCost) {
             tabVal.innerHTML = nodeCostVal;
         }
     }
+}
+
+function create_nodeCost_tab(nodeCost) {
+    let old_table = document.getElementById("tableau_nodeCost");
+    if (old_table != null) {
+        old_table.remove();
+    }
+    console.log("nodeCost : ",nodeCost);
+    let div = document.createElement("div");
+    div.setAttribute("id","tableau_nodeCost");
+    let table = document.createElement("table");
+    table.setAttribute("id","nodeCost");
+    let row = document.createElement("tr");
+    let nodecost = document.createElement("th");
+    nodecost.innerHTML = "Node";
+    row.appendChild(nodecost);
+    let time = document.createElement("th");
+    time.innerHTML = "Time";
+    row.appendChild(time);
+    let cost = document.createElement("th");
+    cost.innerHTML = "Cost";
+    row.appendChild(cost);
+    table.appendChild(row);
+    for (let index = 0; index < Object.keys(nodeCost).length; index++) {
+        const element = nodeCost[index];
+        for (let node in element) {
+            let row = document.createElement("tr");
+            table.appendChild(row);
+            let tabNode = document.createElement("td");
+            tabNode.innerHTML = node;
+            row.appendChild(tabNode);
+            let tabTime = document.createElement("td");
+            tabTime.innerHTML = index;
+            row.appendChild(tabTime);
+            let tabVal = document.createElement("td");
+            tabVal.id = node+index+"cost";
+            tabVal.innerHTML = element[node];
+            row.appendChild(tabVal);
+        }
+    }
+    div.appendChild(table);
+    document.getElementById("dashboard").appendChild(div);
+}
+
+function update_actual_node(node,time) {
+    let actual_node = document.getElementById("actual_node");
+    actual_node.innerHTML = node+time;
 }

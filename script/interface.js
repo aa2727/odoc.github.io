@@ -33,15 +33,3 @@ const nextTick = () => new Promise(res => {
       if (started) resolve();
     });
   });
-
-async function incr_tick_number() {
-    while (true) {
-        await nextTick();
-        await resolveAfter2Seconds();
-        let tick = document.getElementById("tick_number");
-        let num = parseInt(tick.innerHTML);
-        num++;
-        tick.innerHTML = num;
-    }
-
-}
