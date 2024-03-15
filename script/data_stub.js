@@ -61,3 +61,25 @@
     nodes: nodes2,
     edges: edges2
   };
+
+
+const dynamic_graph_test2 = [{
+  A: { },
+  B: {},
+  C: { },
+  D: { B: 9}
+},
+{
+  A: {   
+  },
+  B: { },
+  C: { A: 2 },
+  D: {}
+},
+{
+  A: { B: 5, C: 3 },
+  B: { D: 9},
+  C: { D: 2},
+  D: {}
+}
+];
