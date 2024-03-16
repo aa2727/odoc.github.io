@@ -13,7 +13,7 @@ function cost_time_travel(d) {
  * @param {*} t time
  * @returns the first time where the edge u,v exists, null otherwise
  */
-function find_t_future(graph,u,v,t){
+function find_t_future(graph, u, v, t) {
     for (let index = t; index < graph.length; index++) {
         const static_graph = graph[index];
         if (static_graph[u][v] != undefined || static_graph[v][u] != undefined) {
@@ -23,8 +23,8 @@ function find_t_future(graph,u,v,t){
     return null;
 }
 
-function v_exists(graph,u,v,t) {
-    return (graph[t][u][v] != undefined) ;
+function v_exists(graph, u, v, t) {
+    return (graph[t][u][v] != undefined);
 }
 
 /**
@@ -48,19 +48,19 @@ function still_unvisited_node(unvisited) {
  * @returns the minimum and a tuple with time and the node argmin, 
  * if there is no min, return Infinity,[0,0]
  */
-function argmin_unvisited_node(unvisited,nodeCost) {
+function argmin_unvisited_node(unvisited, nodeCost) {
     let min = Infinity;
-    let argmin = [0,0];
+    let argmin = [0, 0];
     for (let index = 0; index < Object.keys(unvisited).length; index++) {
         const nodeDic = unvisited[index];
         for (let node in nodeDic) {
             if (nodeCost[index][node] <= min) {
                 min = nodeCost[index][node];
-                argmin = [index,node];
+                argmin = [index, node];
             }
         }
     }
-    return [min,argmin];
+    return [min, argmin];
 }
 
 /**
@@ -85,14 +85,14 @@ function nb_node_left(unvisited) {
  * @param {*} C The maximum Cost for the travel
  * @returns 
  */
-function findTminConstraint(dst, nodeCost,C) {
+function findTminConstraint(dst, nodeCost, C) {
     // Loop of the tmin
     for (let t = 0; t < Object.keys(nodeCost).length; t++) {
         // Check if the current t time can arrive at i time without exceding the cost C
         for (let i = 0; i < Object.keys(nodeCost).length; i++) {
-            if (nodeCost[i][dst] + cost_time_travel(i-t) <= C) {
+            if (nodeCost[i][dst] + cost_time_travel(i - t) <= C) {
                 constraintMet = true;
-                return [t,i];
+                return [t, i];
             }
         }
     }
@@ -108,12 +108,12 @@ function findTminConstraint(dst, nodeCost,C) {
  * @param {*} pred  table of predecessor
  * @returns     the path from src to dst at time tmin
  */
-function extractTimeTravelRec(dst,src,tmin,nodeCost,pred) {
+function extractTimeTravelRec(dst, src, tmin, nodeCost, pred) {
     if (dst == src) {
-        return [[src,tmin]];
+        return [[src, tmin]];
     }
-    console.log("pred, dst, tmin : ",pred[tmin][dst],dst,tmin);
-    return extractTimeTravelRec(pred[tmin][dst][0][0],src,pred[tmin][dst][0][1],nodeCost,pred).concat(pred[tmin][dst]);
+    console.log("pred, dst, tmin : ", pred[tmin][dst], dst, tmin);
+    return extractTimeTravelRec(pred[tmin][dst][0][0], src, pred[tmin][dst][0][1], nodeCost, pred).concat(pred[tmin][dst]);
 }
 
 function printTimeTravel(path) {
@@ -121,24 +121,24 @@ function printTimeTravel(path) {
     for (let index = 0; index < path.length; index++) {
         const element = path[index];
         str += element[0] + " at time " + element[1] + " -> ";
-    }   
+    }
     return str;
 }
 
 function resolveAfter2Seconds() {
     return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve('resolved');
-      }, 2000);
+        setTimeout(() => {
+            resolve('resolved');
+        }, 2000);
     });
-  }
+}
 
-async function offline_costc_odoc(src,dest,graph,C) {
+async function offline_costc_odoc(src, dest, graph, C) {
     const nodeCost = {};
     const minCost = {};
     const pred = {};
     const unvisited = {};
-    
+
     /**
      * Initialisation of the tables of cost and time
      */
@@ -172,7 +172,7 @@ async function offline_costc_odoc(src,dest,graph,C) {
         await resolveAfter2Seconds();
         await nextTick();
         update_nodeCost_tab_view(nodeCost);
-        let res = argmin_unvisited_node(unvisited,nodeCost);// Ligne argmin
+        let res = argmin_unvisited_node(unvisited, nodeCost);// Ligne argmin
         let c = res[0];
         if (c == Infinity) {
             break;
@@ -180,42 +180,41 @@ async function offline_costc_odoc(src,dest,graph,C) {
         delete unvisited[res[1][0]][res[1][1]];
         let u = res[1][1];
         let t = res[1][0];
-        update_actual_node(u,t);
+        update_actual_node(u, t);
+        update_network_view(nodeCost, pred, u, t);
         // Pour chaque noeud v adjacent à u
         for (let v in graph[0]) {
             if (v != u) {
-                let t_future = find_t_future(graph,u,v,res[1][0]);
+                let t_future = find_t_future(graph, u, v, res[1][0]);
                 if (t_future != null) {
-                    const [cmin,tmin] = minCost[v];
-                    if ((nodeCost[t_future][v] > c) && ((c<cmin) || (t_future < tmin))) {
+                    const [cmin, tmin] = minCost[v];
+                    if ((nodeCost[t_future][v] > c) && ((c < cmin) || (t_future < tmin))) {
                         nodeCost[t_future][v] = c;
-                        pred[t_future][v] = [[u,res[1][0]],[u,t_future],[v,t_future]];
-                        if ((c < minCost[v][0]) || (c == minCost[v][0] && t_future < minCost[v][1])) minCost[v] = [c,t_future];
+                        pred[t_future][v] = [[u, res[1][0]], [u, t_future], [v, t_future]];
+                        if ((c < minCost[v][0]) || (c == minCost[v][0] && t_future < minCost[v][1])) minCost[v] = [c, t_future];
                     }
                 }
-                for (let index = res[1][0]-1; index >= 0; index--) {
-                    if (v_exists(graph,u,v,index)|| v_exists(graph,v,u,index)){
-                        let cpast = c + cost_time_travel(res[1][0]-index);
+                for (let index = res[1][0] - 1; index >= 0; index--) {
+                    if (v_exists(graph, u, v, index) || v_exists(graph, v, u, index)) {
+                        let cpast = c + cost_time_travel(res[1][0] - index);
                         if (cpast <= C && nodeCost[index][v] > cpast) {
-                            
+
                             nodeCost[index][v] = cpast;
-                            pred[index][v] = [[u,res[1][0]],[u,index],[v,index]];
+                            pred[index][v] = [[u, res[1][0]], [u, index], [v, index]];
                         }
                     }
-                    
+
                 }
-                
+
             }
         }
-        console.log("NodeCost :",JSON.parse(JSON.stringify(nodeCost)));
+        console.log("NodeCost :", JSON.parse(JSON.stringify(nodeCost)));
     }
-    console.log("pred :",pred);
-    const [tmin,t] = findTminConstraint(dest,nodeCost,C);
+    console.log("pred :", pred);
+    const [tmin, t] = findTminConstraint(dest, nodeCost, C);
     if (tmin == null) return null;
-    if (pred[tmin][dest] == null)
-    {
-        return extractTimeTravelRec(dest,src,t,nodeCost,pred).concat([[dest,tmin]]);
+    if (pred[tmin][dest] == null) {
+        return extractTimeTravelRec(dest, src, t, nodeCost, pred).concat([[dest, tmin]]);
     }
-    return extractTimeTravelRec(dest,src,tmin,nodeCost,pred);
+    return extractTimeTravelRec(dest, src, tmin, nodeCost, pred);
 }
-

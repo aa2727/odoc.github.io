@@ -92,3 +92,4 @@ function update_actual_node(node,time) {
     let actual_node = document.getElementById("actual_node");
     actual_node.innerHTML = node+time;
 }
+
