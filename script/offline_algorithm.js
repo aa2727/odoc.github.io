@@ -91,8 +91,18 @@ function findTminConstraint(dst, nodeCost, C) {
         // Check if the current t time can arrive at i time without exceding the cost C
         for (let i = 0; i < Object.keys(nodeCost).length; i++) {
             if (nodeCost[i][dst] + cost_time_travel(i - t) <= C) {
-                constraintMet = true;
                 return [t, i];
+            }
+        }
+    }
+    return null;
+}
+
+function findTminHistoryConstraint(dst, nodeCost, H) {
+    for (let t = 0; t < Object.keys(nodeCost).length; t++) {
+        for (let h = 0; h < H && h < Object.keys(nodeCost).length ; h++) {
+            if (nodeCost[t][h][dst] != Infinity) {
+                return t;
             }
         }
     }
@@ -114,6 +124,14 @@ function extractTimeTravelRec(dst, src, tmin, nodeCost, pred) {
     }
     console.log("pred, dst, tmin : ", pred[tmin][dst], dst, tmin);
     return extractTimeTravelRec(pred[tmin][dst][0][0], src, pred[tmin][dst][0][1], nodeCost, pred).concat(pred[tmin][dst]);
+}
+
+function extractTimeTravelRecHistory(dst, src, tmin, tmax, pred) {
+    if (dst == src) {
+        return [[src, tmin]];
+    }
+    console.log("pred, dst, tmin : ", pred[tmin][tmax][dst], dst, tmin);
+    return extractTimeTravelRecHistory(pred[tmin][tmax][dst][0][0], src, pred[tmin][tmax][dst][0][1], tmax, pred).concat(pred[tmin][tmax][dst]);
 }
 
 function printTimeTravel(path) {
@@ -217,4 +235,102 @@ async function offline_costc_odoc(src, dest, graph, C) {
         return extractTimeTravelRec(dest, src, t, nodeCost, pred).concat([[dest, tmin]]);
     }
     return extractTimeTravelRec(dest, src, tmin, nodeCost, pred);
+}
+
+function min_from_past(graph, cost, node, t, h) {
+    console.log("trace min_from_past graph : ", graph, " cost : ", cost, " node : ", node, " t : ", t, " h : ", h);
+    let min = Infinity;
+    let timeMin = 0;
+    let nodeMin = null;
+    for (let index = t - h; index <= t; index++) {
+        if (graph[index] != undefined && graph[index][node] != undefined) {
+            for (let v in graph[index][node]) {
+                if (graph[index][node][v] != undefined || graph[index][v][node] != undefined) {
+                    console.log("il y a un edge entre ", node, " et ", v, " à l'instant ", index);
+                    if (cost[index][t][v] + cost_time_travel(index - t + h) < min) {
+                        min = cost[index][t][v] + cost_time_travel(index - t + h);
+                        timeMin = index;
+                        nodeMin = v;
+                    }
+                }
+            }
+        }
+    }
+    console.log("min : ", min, " timeMin : ", timeMin, " nodeMin : ", nodeMin);
+    return [min, timeMin, nodeMin];
+}
+
+async function offline_historyc_odoc(src, dest, graph, H) {
+
+    // Initialisation of the tables of cost and time
+    const cost = {};
+    const pred = {};
+    let tmax = graph.length;
+    for (let index = 0; index < tmax; index++) {
+        cost[index] = {};
+        pred[index] = {};
+        for (let h = 0; h < tmax; h++) {
+            cost[index][h] = {};
+            pred[index][h] = {};
+            for (let node in graph[0]) {
+                cost[index][h][node] = Infinity;
+                pred[index][h][node] = null;
+            }
+        }
+
+    }
+    cost[0][0][src] = 0;
+
+    // We start at 1 because the cost of the first time does not change with the past
+    for (let t = 1; t < tmax; t++) {
+        // Propagation of the cost of the predecessor in time
+        for (let node in graph[0]) {
+
+            for (let h = 0; h < tmax; h++) {
+                if (h > t) {
+                    continue;
+                }
+                if (h == 0) {
+                    cost[h][t][node] = cost[h][t - 1][node];
+                    continue;
+                }
+                //console.log("node : ", node, " t : ", t, " h : ", h, " cost : ", cost[t - 1][h][node], " cost : ", cost[t - 1][h - 1][node]);
+                cost[t][h][node] = Math.min(cost[t - 1][h][node], cost[t - 1][h - 1][node]);
+                //console.log("node : ", node, " t : ", t, " h : ", h, " cost : ", cost[t][h][node]);
+            }
+        }
+
+        for (let index = 0; index < Object.keys(graph[0]).length; index++) {
+            for (const node in graph[0]) {
+                //console.log("node : ", node);
+                for (let h = H; h >= 0; h--) {
+                    if (t - h < 0) {
+                        continue;
+                    }
+                    let res = min_from_past(graph, cost, node, t, h);
+                    let timeMin = res[1];
+                    let nodeMin = res[2];
+                    let m = res[0];
+                    //console.log("m : ", m, " timeMin : ", timeMin, " nodeMin : ", nodeMin, " h : ", h, " t : ", t, " node : ", node);
+                    if (m < cost[t - h][t][node]) {
+                        cost[t - h][t][node] = m;
+                        pred[t - h][t][node] = [[nodeMin, timeMin], [nodeMin, t], [node, t]];
+                        console.log(">>>> pred : ", JSON.parse(JSON.stringify(pred)));
+
+                    }
+                }
+            }
+
+        }
+    }
+    console.log("cost : ", cost);
+    console.log("pred : ", pred);
+    let t = findTminHistoryConstraint(dest, cost, H);
+    console.log("t : ", t);
+    if (t == null) return null;
+    tmax = Math.min(t + H, tmax-1);
+    if (pred[t][tmax][dest] == null) {
+        return extractTimeTravelRecHistory(dest, src, t, tmax, pred).concat([[dest, t]]);
+    }
+    return extractTimeTravelRecHistory(dest, src, t, tmax, pred);
 }

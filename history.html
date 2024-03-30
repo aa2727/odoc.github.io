@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <link rel="stylesheet" href="style/style.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visualisation ODOC</title>
 </head>
-
 <body>
   <section id="dashboard">
     <form id="info">
@@ -17,6 +15,8 @@
       <input type="text" id="end" name="end"><br><br>
       <label>Cost Max:</label>
       <input type="text" id="cost" name="cost"><br><br>
+      <label>Time:</label>
+      <input type="text" id="startTime" name="startTime"><br><br>
     </form>
     <button onclick="run_odoc()">Compute CostCostrained</button>
     <button onclick="" id="play">Play</button>
@@ -29,15 +29,14 @@
 
   </section>
 
-  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-  <script type="text/javascript" src="script/staticGraphVN.js"></script>
-  <script type="text/javascript" src="script/data_stub.js"></script>
-  <script type="text/javascript" src="script/offline_algorithm.js"></script>
-  <script type="text/javascript" src="script/interface.js"></script>
-  <script type="text/javascript">
-    var network = from_dgraph_to_datanetwork(dynamic_graph_test2)
-    createNetworkHierarchical(network, "network2");
-  </script>
+<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script type="text/javascript" src="script/staticGraphVN.js"></script>
+<script type="text/javascript" src="script/data_stub.js"></script>
+<script type="text/javascript" src="script/offline_algorithm.js"></script>
+<script type="text/javascript" src="script/interface.js"></script>
+<script type="text/javascript">
+  var network = from_dgraph_to_datanetwork(dynamic_graph_test2)
+  createNetworkHierarchical(network,"network2");
+</script>
 </body>
-
 </html>

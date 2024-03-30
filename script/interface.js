@@ -6,20 +6,20 @@ async function run_odoc() {
     //let time = document.getElementById("startTime").value;
     let cost = document.getElementById("cost").value;
     let graph = dynamic_graph_test2;
-    let travel = await offline_costc_odoc(start, end, graph, cost);
+    let travel = await offline_historyc_odoc(start, end, graph, cost);
     color_travel(travel, network);
     console.log(printTimeTravel(travel));
 }
 var started = false;
 let button_play = document.getElementById("play");
-button_play.addEventListener("click",function() {
+button_play.addEventListener("click", function () {
     started = true;
     console.log("play");
-    resolve();
+
 });
 
 let button_pause = document.getElementById("pause");
-button_pause.addEventListener("click",function() {
+button_pause.addEventListener("click", function () {
     started = false;
     console.log("pause");
 });
@@ -29,18 +29,18 @@ const nextTick = () => new Promise(res => {
     resolve = res;
     console.log("waiting");
     setTimeout(() => {
-      if (started) resolve();
+        if (started) resolve();
     });
-  });
+});
 
 
-  function update_nodeCost_tab_view(nodeCost) {
+function update_nodeCost_tab_view(nodeCost) {
     for (let index = 0; index < Object.keys(nodeCost).length; index++) {
         const element = nodeCost[index];
-        console.log("element : ",element);
+        console.log("element : ", element);
         for (let node in element) {
             let nodeCostVal = element[node];
-            let tabVal = document.getElementById(node+index+"cost");
+            let tabVal = document.getElementById(node + index + "cost");
             tabVal.innerHTML = nodeCostVal;
         }
     }
@@ -51,11 +51,11 @@ function create_nodeCost_tab(nodeCost) {
     if (old_table != null) {
         old_table.remove();
     }
-    console.log("nodeCost : ",nodeCost);
+    console.log("nodeCost : ", nodeCost);
     let div = document.createElement("div");
-    div.setAttribute("id","tableau_nodeCost");
+    div.setAttribute("id", "tableau_nodeCost");
     let table = document.createElement("table");
-    table.setAttribute("id","nodeCost");
+    table.setAttribute("id", "nodeCost");
     let row = document.createElement("tr");
     let nodecost = document.createElement("th");
     nodecost.innerHTML = "Node";
@@ -79,7 +79,7 @@ function create_nodeCost_tab(nodeCost) {
             tabTime.innerHTML = index;
             row.appendChild(tabTime);
             let tabVal = document.createElement("td");
-            tabVal.id = node+index+"cost";
+            tabVal.id = node + index + "cost";
             tabVal.innerHTML = element[node];
             row.appendChild(tabVal);
         }
@@ -88,8 +88,8 @@ function create_nodeCost_tab(nodeCost) {
     document.getElementById("dashboard").appendChild(div);
 }
 
-function update_actual_node(node,time) {
+function update_actual_node(node, time) {
     let actual_node = document.getElementById("actual_node");
-    actual_node.innerHTML = node+time;
+    actual_node.innerHTML = node + time;
 }
 
