@@ -2,7 +2,7 @@ function cost_time_travel(d) {
     if (d <= 0) {
         return 0;
     }
-    return d;
+    return parseInt(d);
 }
 
 /**
@@ -99,8 +99,10 @@ function findTminConstraint(dst, nodeCost, C) {
 }
 
 function findTminHistoryConstraint(dst, nodeCost, H) {
+    console.log("nodeCost : ", nodeCost);
     for (let t = 0; t < Object.keys(nodeCost).length; t++) {
-        for (let h = 0; h < H && h < Object.keys(nodeCost).length; h++) {
+        for (let h = 0; h <= H && h < Object.keys(nodeCost).length; h++) {
+            console.log("t : ", t, " h : ", h, " dst : ", dst, " nodeCost : ", nodeCost[t][h][dst]);
             if (nodeCost[t][h][dst] != Infinity) {
                 return t;
             }
@@ -135,20 +137,21 @@ function extractTimeTravelRec(dst, src, tmin, nodeCost, pred) {
  * @param {*} pred table of predecessor
  * @returns the path from src to dst between tmin and tmax
  */
-function extractTimeTravelRecHistory(dst, src, tmin, tmax, pred) {
-    console.log("dst : ", dst, " src : ", src, " tmin : ", tmin, " tmax : ", tmax);
+function extractTimeTravelRecHistory(dst, src, t, tmax, pred, tmin) {
+
     if (dst == src) {
         return [[src, tmin]];
     }
-    if (pred[tmin][tmax][dst] == null) {
-        for (let index = tmin; index < tmax; index++) {
+    if (pred[t][tmax][dst] == null) {
+        console.log("pred, dst, t is null : ", pred[t][tmax][dst], dst, t);
+        for (let index = t; index < tmax; index++) {
             if (pred[index][tmax][dst] != null) {
-                return extractTimeTravelRecHistory(pred[index][tmax][dst][0][0], src, pred[index][tmax][dst][0][1], tmax, pred).concat(pred[index][tmax][dst]).concat([[dst,tmin]]);
+                return extractTimeTravelRecHistory(pred[index][tmax][dst][0][0], src, pred[index][tmax][dst][0][1], tmax, pred, tmin).concat(pred[index][tmax][dst]).concat([[dst, t]]);
             }
         }
     }
-    console.log("pred, dst, tmin : ", pred[tmin][tmax][dst], dst, tmin);
-    return extractTimeTravelRecHistory(pred[tmin][tmax][dst][0][0], src, pred[tmin][tmax][dst][0][1], tmax, pred).concat(pred[tmin][tmax][dst]);
+    console.log("pred, dst, t : ", pred[t][tmax][dst], dst, t);
+    return extractTimeTravelRecHistory(pred[t][tmax][dst][0][0], src, pred[t][tmax][dst][0][1], tmax, pred, tmin).concat(pred[t][tmax][dst]).concat([[dst, t]]);
 }
 
 function printTimeTravel(path) {
@@ -255,17 +258,16 @@ async function offline_costc_odoc(src, dest, graph, C) {
 }
 
 function min_from_past(graph, cost, node, t, h) {
-    console.log("trace min_from_past graph : ", graph, " cost : ", cost, " node : ", node, " t : ", t, " h : ", h);
     let min = Infinity;
     let timeMin = 0;
     let nodeMin = null;
     for (let index = t - h; index <= t; index++) {
         if (graph[index] != undefined && graph[index][node] != undefined) {
-            for (let v in graph[index][node]) {
+            for (let v in graph[0]) {
                 if (graph[index][node][v] != undefined || graph[index][v][node] != undefined) {
-                    console.log("il y a un edge entre ", node, " et ", v, " à l'instant ", index);
-                    if (cost[index][t][v] + cost_time_travel(index - t + h) < min) {
-                        min = cost[index][t][v] + cost_time_travel(index - t + h);
+                    let sum = parseInt(parseInt(index - t) + parseInt(h)); // Je ne sais pas pourquoi sans parseInt ça donne une string
+                    if (cost[index][t][v] + cost_time_travel(sum) < min) {
+                        min = cost[index][t][v] + cost_time_travel(sum);
                         timeMin = index;
                         nodeMin = v;
                     }
@@ -273,7 +275,6 @@ function min_from_past(graph, cost, node, t, h) {
             }
         }
     }
-    console.log("min : ", min, " timeMin : ", timeMin, " nodeMin : ", nodeMin);
     return [min, timeMin, nodeMin];
 }
 
@@ -309,6 +310,7 @@ async function offline_historyc_odoc(src, dest, graph, H) {
                 }
                 if (h == 0) {
                     cost[h][t][node] = cost[h][t - 1][node];
+                    pred[h][t][node] = pred[h][t - 1][node];
                     continue;
                 }
                 //console.log("node : ", node, " t : ", t, " h : ", h, " cost : ", cost[t - 1][h][node], " cost : ", cost[t - 1][h - 1][node]);
@@ -319,7 +321,7 @@ async function offline_historyc_odoc(src, dest, graph, H) {
 
         for (let index = 0; index < Object.keys(graph[0]).length; index++) {
             for (const node in graph[0]) {
-                //console.log("node : ", node);
+                console.log("node : ", node, " t : ", t);
                 for (let h = H; h >= 0; h--) {
                     if (t - h < 0) {
                         continue;
@@ -328,8 +330,8 @@ async function offline_historyc_odoc(src, dest, graph, H) {
                     let timeMin = res[1];
                     let nodeMin = res[2];
                     let m = res[0];
-                    //console.log("m : ", m, " timeMin : ", timeMin, " nodeMin : ", nodeMin, " h : ", h, " t : ", t, " node : ", node);
                     if (m < cost[t - h][t][node]) {
+                        console.log("m : ", m, " timeMin : ", timeMin, " nodeMin : ", nodeMin, " h : ", h, " t : ", t, " node : ", node);
                         cost[t - h][t][node] = m;
                         pred[t - h][t][node] = [[nodeMin, timeMin], [nodeMin, t], [node, t]];
                         console.log(">>>> pred : ", JSON.parse(JSON.stringify(pred)));
@@ -346,5 +348,5 @@ async function offline_historyc_odoc(src, dest, graph, H) {
     console.log("t : ", t);
     if (t == null) return null;
     tmax = Math.min(t + H, tmax - 1);
-    return extractTimeTravelRecHistory(dest, src, t, tmax, pred);
+    return extractTimeTravelRecHistory(dest, src, t, tmax, pred, t);
 }

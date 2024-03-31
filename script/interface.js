@@ -7,10 +7,13 @@ async function run_odoc() {
     let cost = document.getElementById("cost").value;
     let graph = dynamic_graph_test2;
     let travel = await offline_historyc_odoc(start, end, graph, cost);
+    if (travel == null) {
+        console.log("No path found");
+        return;
+    }
     console.log('travel : ', travel);
     console.log(printTimeTravel(travel));
     color_travel(travel, network);
-    
 }
 var started = false;
 let button_play = document.getElementById("play");
