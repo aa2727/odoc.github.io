@@ -100,7 +100,7 @@ function findTminConstraint(dst, nodeCost, C) {
 
 function findTminHistoryConstraint(dst, nodeCost, H) {
     for (let t = 0; t < Object.keys(nodeCost).length; t++) {
-        for (let h = 0; h < H && h < Object.keys(nodeCost).length ; h++) {
+        for (let h = 0; h < H && h < Object.keys(nodeCost).length; h++) {
             if (nodeCost[t][h][dst] != Infinity) {
                 return t;
             }
@@ -110,7 +110,7 @@ function findTminHistoryConstraint(dst, nodeCost, H) {
 }
 
 /**
- * Extract the path from the pred table
+ * Extract the path from the pred table after a cost constrained algorithm
  * @param {*} dst  destination node
  * @param {*} src  source node
  * @param {*} tmin  time where the cost is minimal
@@ -126,9 +126,26 @@ function extractTimeTravelRec(dst, src, tmin, nodeCost, pred) {
     return extractTimeTravelRec(pred[tmin][dst][0][0], src, pred[tmin][dst][0][1], nodeCost, pred).concat(pred[tmin][dst]);
 }
 
+/** 
+ * Extract the path from the pred table after a history constrained algorithm
+ * @param {*} dst destination node 
+ * @param {*} src source node
+ * @param {*} tmin minimal time
+ * @param {*} tmax maximal time
+ * @param {*} pred table of predecessor
+ * @returns the path from src to dst between tmin and tmax
+ */
 function extractTimeTravelRecHistory(dst, src, tmin, tmax, pred) {
+    console.log("dst : ", dst, " src : ", src, " tmin : ", tmin, " tmax : ", tmax);
     if (dst == src) {
         return [[src, tmin]];
+    }
+    if (pred[tmin][tmax][dst] == null) {
+        for (let index = tmin; index < tmax; index++) {
+            if (pred[index][tmax][dst] != null) {
+                return extractTimeTravelRecHistory(pred[index][tmax][dst][0][0], src, pred[index][tmax][dst][0][1], tmax, pred).concat(pred[index][tmax][dst]).concat([[dst,tmin]]);
+            }
+        }
     }
     console.log("pred, dst, tmin : ", pred[tmin][tmax][dst], dst, tmin);
     return extractTimeTravelRecHistory(pred[tmin][tmax][dst][0][0], src, pred[tmin][tmax][dst][0][1], tmax, pred).concat(pred[tmin][tmax][dst]);
@@ -328,9 +345,6 @@ async function offline_historyc_odoc(src, dest, graph, H) {
     let t = findTminHistoryConstraint(dest, cost, H);
     console.log("t : ", t);
     if (t == null) return null;
-    tmax = Math.min(t + H, tmax-1);
-    if (pred[t][tmax][dest] == null) {
-        return extractTimeTravelRecHistory(dest, src, t, tmax, pred).concat([[dest, t]]);
-    }
+    tmax = Math.min(t + H, tmax - 1);
     return extractTimeTravelRecHistory(dest, src, t, tmax, pred);
 }
