@@ -6,6 +6,24 @@ async function run_odoc() {
     //let time = document.getElementById("startTime").value;
     let cost = document.getElementById("cost").value;
     let graph = dynamic_graph_test2;
+    let travel = await offline_costc_odoc(start, end, graph, cost);
+    if (travel == null) {
+        console.log("No path found");
+        return;
+    }
+    console.log('travel : ', travel);
+    console.log(printTimeTravel(travel));
+    color_travel(travel, network);
+}
+
+async function run_odoc_hist() {
+    init_color_graph(network);
+    // get arguments from the form in the html
+    let start = document.getElementById("start").value;
+    let end = document.getElementById("end").value;
+    //let time = document.getElementById("startTime").value;
+    let cost = document.getElementById("cost").value;
+    let graph = dynamic_graph_test2;
     let travel = await offline_historyc_odoc(start, end, graph, cost);
     if (travel == null) {
         console.log("No path found");
@@ -15,6 +33,7 @@ async function run_odoc() {
     console.log(printTimeTravel(travel));
     color_travel(travel, network);
 }
+
 var started = false;
 let button_play = document.getElementById("play");
 button_play.addEventListener("click", function () {
