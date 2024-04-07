@@ -33,11 +33,11 @@ function extractTimeTravelRecHistory(dst, src, t, tmax, pred, tmin) {
  */
 function findTminHistoryConstraint(dst, nodeCost, H) {
     console.log("nodeCost : ", nodeCost);
-    for (let t = 0; t < Object.keys(nodeCost).length; t++) {
-        for (let h = 0; h <= H && h < Object.keys(nodeCost).length; h++) {
-            if (nodeCost[t][h][dst] != Infinity) {
-                return t;
-            }
+    for (let t = 0; t + parseInt(H) < Object.keys(nodeCost).length; t++) {
+        console.log(Object.keys(nodeCost).length);
+        console.log("t : ", t, " dst : ", dst, " t+H : ", parseInt(H)+t, " nodeCost : ");
+        if (nodeCost[t][t + parseInt(H)][dst] != Infinity) {
+            return t;
         }
     }
     return null;
@@ -119,8 +119,9 @@ async function offline_historyc_odoc(src, dest, graph, H) {
                     if (m < cost[t - h][t][node]) {
                         console.log("m : ", m, " timeMin : ", timeMin, " nodeMin : ", nodeMin, " h : ", h, " t : ", t, " node : ", node);
                         cost[t - h][t][node] = m;
-                        pred[t - h][t][node] = [[nodeMin, timeMin], [nodeMin, t], [node, t]];
+                        pred[t - h][t][node] = [[nodeMin, timeMin], [node, timeMin], [node, t]];
                         console.log(">>>> pred : ", JSON.parse(JSON.stringify(pred)));
+                        console.log(">>>> pred change for ", node, " at time ", t, " with ", nodeMin, " at time ", timeMin);
 
                     }
                 }
