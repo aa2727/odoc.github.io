@@ -63,7 +63,7 @@
   };
 
 
-const dynamic_graph_test2 = [{
+var global_graph = [{
   A: { },
   B: {},
   C: { },

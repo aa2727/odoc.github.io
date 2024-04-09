@@ -1,11 +1,9 @@
 async function run_odoc() {
     init_color_graph(network);
-    // get arguments from the form in the html
     let start = document.getElementById("start").value;
     let end = document.getElementById("end").value;
-    //let time = document.getElementById("startTime").value;
     let cost = document.getElementById("cost").value;
-    let graph = dynamic_graph_test2;
+    let graph = global_graph;
     let travel = await offline_costc_odoc(start, end, graph, cost);
     if (travel == null) {
         console.log("No path found");
@@ -23,7 +21,7 @@ async function run_odoc_hist() {
     let end = document.getElementById("end").value;
     //let time = document.getElementById("startTime").value;
     let cost = document.getElementById("cost").value;
-    let graph = dynamic_graph_test2;
+    let graph = global_graph;
     let travel = await offline_historyc_odoc(start, end, graph, cost);
     if (travel == null) {
         console.log("No path found");
@@ -117,3 +115,12 @@ function update_actual_node(node, time) {
     actual_node.innerHTML = node + time;
 }
 
+function changeGraph(network) {
+    let graph = document.getElementById("graph").value;
+    let graph_data = JSON.parse(graph);
+    graph_data = from_dgraph_to_datanetwork(graph_data);
+    console.log("graph_data : ", graph_data);
+    console.log("network : ",network);
+    network.setData(graph_data);
+    console.log("network : ",network);
+  }
