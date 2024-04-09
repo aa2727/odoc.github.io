@@ -19,7 +19,12 @@
       <label>Cost Max:</label>
       <input type="text" id="cost" name="cost"><br><br>
     </form>
-    <button onclick="run_odoc()">Compute CostCostrained</button>
+    <form>
+      <label>Graphe:</label>
+      <input type="text" id="graph" name="graph">
+    </form>
+    <button onclick="changeGraph(network)">Set new graph</button><br><br>
+    <button onclick="run_odoc(network)">Compute CostCostrained</button>
     <button onclick="" id="play">Play</button>
     <button onclick="" id="pause">Pause</button>
     <h2>Actual node:</h2>
@@ -37,8 +42,8 @@
   <script type="text/javascript" src="script/cost_constrained.js"></script>
   <script type="text/javascript" src="script/interface.js"></script>
   <script type="text/javascript">
-    var network = from_dgraph_to_datanetwork(dynamic_graph_test2)
-    createNetworkHierarchical(network, "network2");
+    let network = from_dgraph_to_datanetwork(global_graph);
+    createNetworkHierarchical(network, "network");
   </script>
 </body>
 
