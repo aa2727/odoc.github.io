@@ -1,4 +1,4 @@
-async function run_odoc() {
+async function run_odoc(network) {
     init_color_graph(network);
     let start = document.getElementById("start").value;
     let end = document.getElementById("end").value;
@@ -117,9 +117,9 @@ function update_actual_node(node, time) {
 
 function changeGraph(network) {
     let graph = document.getElementById("graph").value;
-    let graph_data = JSON.parse(graph);
-    graph_data = from_dgraph_to_datanetwork(graph_data);
-    console.log("graph_data : ", graph_data);
+    global_graph = JSON.parse(graph);
+    let graph_data = from_dgraph_to_datanetwork(global_graph);
+    console.log("global_graph : ", graph_data);
     console.log("network : ",network);
     network.setData(graph_data);
     console.log("network : ",network);

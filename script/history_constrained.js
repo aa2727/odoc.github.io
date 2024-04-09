@@ -65,7 +65,7 @@ function min_from_past(graph, cost, node, t, h) {
 }
 
 async function offline_historyc_odoc(src, dest, graph, H) {
-
+    console.log("graph : ", graph);
     // Initialisation of the tables of cost and time
     const cost = {};
     const pred = {};
