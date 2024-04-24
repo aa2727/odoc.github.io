@@ -12,6 +12,7 @@ function extractTimeTravelRecHistory(dst, src, t, tmax, pred, tmin) {
     if (dst == src) {
         return [[src, tmin]];
     }
+    // If the predecessor is null for this window of time we look for the shorter window of time where the predecessor is not null
     if (pred[t][tmax][dst] == null) {
         console.log("pred, dst, t is null : ", pred[t][tmax][dst], dst, t);
         for (let index = t; index < tmax; index++) {
