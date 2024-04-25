@@ -1,3 +1,10 @@
+/**
+ * Create a network with the data_network and the name of the container
+ * @param {*} data_network 
+ * @param {*} name 
+ * @param {*} options 
+ * @returns 
+ */
 function createNetwork(data_network, name, options = null) {
   var container = document.createElement(name);
   if (options == null) {
@@ -14,6 +21,11 @@ function createNetwork(data_network, name, options = null) {
   return network;
 }
 
+/**
+ * Create a network with the data_network display the node in a dynamic graph way
+ * @param {*} data_network 
+ * @param {*} name 
+ */
 function createNetworkHierarchical(data_network, name) {
   var options = {
     layout: {
