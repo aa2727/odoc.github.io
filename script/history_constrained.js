@@ -36,8 +36,8 @@ function findTminHistoryConstraint(dst, nodeCost, H) {
     console.log("nodeCost : ", nodeCost);
     for (let t = 0; t + parseInt(H) < Object.keys(nodeCost).length; t++) {
         console.log(Object.keys(nodeCost).length);
-        console.log("t : ", t, " dst : ", dst, " t+H : ", parseInt(H)+t, " nodeCost : ");
         if (nodeCost[t][t + parseInt(H)][dst] != Infinity) {
+            console.log("t : ", t, " dst : ", dst, " t+H : ", parseInt(H) + t, " nodeCost : ", nodeCost[t][t + parseInt(H)][dst]);
             return t;
         }
     }
@@ -47,6 +47,7 @@ function findTminHistoryConstraint(dst, nodeCost, H) {
 function min_from_past(graph, cost, node, t, h) {
     let min = Infinity;
     let timeMin = 0;
+    let window = 0;
     let nodeMin = null;
     for (let index = t - h; index <= t; index++) {
         if (graph[index] != undefined && graph[index][node] != undefined) {
@@ -66,8 +67,6 @@ function min_from_past(graph, cost, node, t, h) {
 }
 
 async function offline_historyc_odoc(src, dest, graph, H) {
-    console.log("graph : ", graph);
-    // Initialisation of the tables of cost and time
     const cost = {};
     const pred = {};
     let tmax = graph.length;
@@ -86,29 +85,38 @@ async function offline_historyc_odoc(src, dest, graph, H) {
     }
     cost[0][0][src] = 0;
 
-    // We start at 1 because the cost of the first time does not change with the past
-    for (let t = 1; t < tmax; t++) {
-        // Propagation of the cost of the predecessor in time
-        for (let node in graph[0]) {
 
-            for (let h = 0; h < tmax; h++) {
-                if (h > t) {
-                    continue;
+    for (let t = 0; t < tmax; t++) {
+        // Propagation of the cost of the predecessor in time
+        // We start at 1 because the cost of the first time does not change with the past
+        if (t > 0) {
+
+            for (let node in graph[0]) {
+
+                for (let h = 0; h < tmax; h++) {
+                    if (h > t) {
+                        continue;
+                    }
+
+                    if (h == 0) {
+                        cost[h][t][node] = cost[h][t - 1][node];
+                        pred[h][t][node] = pred[h][t - 1][node];
+                        continue;
+                    }
+                    cost[h][t][node] = Math.min(cost[h][t - 1][node], cost[h - 1][t - 1][node]);
+                    if (cost[h][t - 1][node] < cost[h - 1][t - 1][node]) {
+                        pred[h][t][node] = pred[h][t - 1][node];
+                    }
+                    else {
+                        pred[h][t][node] = pred[h - 1][t - 1][node];
+                    }
                 }
-                if (h == 0) {
-                    cost[h][t][node] = cost[h][t - 1][node];
-                    pred[h][t][node] = pred[h][t - 1][node];
-                    continue;
-                }
-                //console.log("node : ", node, " t : ", t, " h : ", h, " cost : ", cost[t - 1][h][node], " cost : ", cost[t - 1][h - 1][node]);
-                cost[t][h][node] = Math.min(cost[t - 1][h][node], cost[t - 1][h - 1][node]);
-                //console.log("node : ", node, " t : ", t, " h : ", h, " cost : ", cost[t][h][node]);
             }
         }
 
+        // Propagation of the cost of the predecessor thanks to arcs
         for (let index = 0; index < Object.keys(graph[0]).length; index++) {
             for (const node in graph[0]) {
-                console.log("node : ", node, " t : ", t);
                 for (let h = H; h >= 0; h--) {
                     if (t - h < 0) {
                         continue;
@@ -117,12 +125,9 @@ async function offline_historyc_odoc(src, dest, graph, H) {
                     let timeMin = res[1];
                     let nodeMin = res[2];
                     let m = res[0];
-                    if (m < cost[t - h][t][node]) {
-                        console.log("m : ", m, " timeMin : ", timeMin, " nodeMin : ", nodeMin, " h : ", h, " t : ", t, " node : ", node);
+                    if (m < cost[t - h][t][node]) { // If the cost is less than the previous one
                         cost[t - h][t][node] = m;
-                        pred[t - h][t][node] = [[nodeMin, timeMin], [node, timeMin], [node, t]];
-                        console.log(">>>> pred : ", JSON.parse(JSON.stringify(pred)));
-                        console.log(">>>> pred change for ", node, " at time ", t, " with ", nodeMin, " at time ", timeMin);
+                        pred[t - h][t][node] = [[nodeMin, timeMin], [nodeMin, t], [node, t]];
 
                     }
                 }

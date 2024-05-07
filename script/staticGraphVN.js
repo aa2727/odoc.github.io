@@ -98,11 +98,8 @@ async function color_travel(travel, network) {
  * @param {*} network
  */
 function init_color_graph(network) {
-  console.log(network);
-  console.log(network.body.data.nodes.getIds());
   for (let i = 0; i < network.body.data.nodes.getIds().length; i++) {
     let node = network.body.data.nodes.getIds()[i];
-    console.log(node);
     network.body.data.nodes.updateOnly({ id: node, color: '#97C2FC' });
   }
   for (let i = 0; i < network.body.data.edges.getIds().length; i++) {
