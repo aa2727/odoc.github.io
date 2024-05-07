@@ -76,7 +76,7 @@ function nb_node_left(unvisited) {
  * @param {*} dst destination node
  * @param {*} nodeCost object containing the best cost from the node src at a time
  * @param {*} C The maximum Cost for the travel
- * @returns tmin and t where the cost is minimal
+ * @returns tmin the time we can arrive the sooner and t the time with non null cost, where the cost is minimal
  */
 function findTminConstraint(dst, nodeCost, C) {
     // Loop of the tmin
@@ -100,12 +100,12 @@ function findTminConstraint(dst, nodeCost, C) {
  * @param {*} pred  table of predecessor
  * @returns     the path from src to dst at time tmin
  */
-function extractTimeTravelRec(dst, src, tmin, nodeCost, pred) {
+function extractTimeTravelRec(dst, src, tmin, pred) {
     if (dst == src) {
         return [[src, tmin]];
     }
     console.log("pred, dst, tmin : ", pred[tmin][dst], dst, tmin);
-    return extractTimeTravelRec(pred[tmin][dst][0][0], src, pred[tmin][dst][0][1], nodeCost, pred).concat(pred[tmin][dst]);
+    return extractTimeTravelRec(pred[tmin][dst][0][0], src, pred[tmin][dst][0][1], pred).concat(pred[tmin][dst]);
 }
 
 async function offline_costc_odoc(src, dest, graph, C) {
@@ -189,7 +189,7 @@ async function offline_costc_odoc(src, dest, graph, C) {
     const [tmin, t] = findTminConstraint(dest, nodeCost, C);
     if (tmin == null) return null;
     if (pred[tmin][dest] == null) {
-        return extractTimeTravelRec(dest, src, t, nodeCost, pred).concat([[dest, tmin]]);
+        return extractTimeTravelRec(dest, src, t, pred).concat([[dest, tmin]]);
     }
-    return extractTimeTravelRec(dest, src, tmin, nodeCost, pred);
+    return extractTimeTravelRec(dest, src, tmin, pred);
 }
